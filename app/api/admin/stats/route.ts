@@ -63,21 +63,26 @@ export async function GET() {
         END as status,
         COUNT(*) as count
       FROM participants
-      GROUP BY status
+      WHERE is_admin = false
+      GROUP BY CASE
+          WHEN photo_url IS NOT NULL THEN 'Com foto'
+          ELSE 'Sem foto'
+        END
     `;
 
     // Get game progress breakdown
     const gameProgressResult = await sql`
-      SELECT
-        CASE
-          WHEN gs.is_completed = true THEN 'Completo'
-          WHEN gs.id IS NOT NULL THEN 'Em progresso'
-          ELSE 'Não começou'
-        END as status,
-        COUNT(DISTINCT p.id) as count
-      FROM participants p
-      LEFT JOIN game_sessions gs ON gs.player_id = p.id
-      WHERE p.is_admin = false
+      SELECT status, COUNT(*) as count FROM (
+        SELECT
+          CASE
+            WHEN gs.is_completed = true THEN 'Completo'
+            WHEN gs.id IS NOT NULL THEN 'Em progresso'
+            ELSE 'Não começou'
+          END as status
+        FROM participants p
+        LEFT JOIN game_sessions gs ON gs.player_id = p.id
+        WHERE p.is_admin = false
+      ) as progress
       GROUP BY status
     `;
 
