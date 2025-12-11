@@ -24,11 +24,23 @@ interface Stats {
   inProgress: number;
 }
 
-type Tab = "overview" | "scores" | "import";
+interface Participant {
+  id: string;
+  name: string;
+  email: string;
+  photo_url: string | null;
+  artist_1: string;
+  artist_2: string;
+  artist_3: string;
+  is_admin: boolean;
+}
+
+type Tab = "overview" | "scores" | "participants" | "import";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [scores, setScores] = useState<Score[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
@@ -63,10 +75,15 @@ export default function AdminPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/scores");
-      const data = await res.json();
-      setScores(data.scores || []);
-      setStats(data.stats || null);
+      const [scoresRes, participantsRes] = await Promise.all([
+        fetch("/api/admin/scores"),
+        fetch("/api/admin/participants"),
+      ]);
+      const scoresData = await scoresRes.json();
+      const participantsData = await participantsRes.json();
+      setScores(scoresData.scores || []);
+      setStats(scoresData.stats || null);
+      setParticipants(participantsData.participants || []);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -175,7 +192,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex space-x-4 mb-6 border-b border-gray-700">
-          {(["overview", "scores", "import"] as Tab[]).map((tab) => (
+          {(["overview", "scores", "participants", "import"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -189,7 +206,9 @@ export default function AdminPage() {
                 ? "Visão Geral"
                 : tab === "scores"
                   ? "Pontuações"
-                  : "Importar CSV"}
+                  : tab === "participants"
+                    ? "Participantes"
+                    : "Importar CSV"}
             </button>
           ))}
         </div>
@@ -341,6 +360,98 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Participants Tab */}
+        {activeTab === "participants" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-fidelidade-red"></div>
+              </div>
+            ) : (
+              <div className="bg-fidelidade-gray rounded-xl overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-fidelidade-dark">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-fidelidade-lightgray">
+                        Participante
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-fidelidade-lightgray">
+                        Email
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-fidelidade-lightgray">
+                        Artista 1
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-fidelidade-lightgray">
+                        Artista 2
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-fidelidade-lightgray">
+                        Artista 3
+                      </th>
+                      <th className="px-4 py-3 text-center text-sm font-medium text-fidelidade-lightgray">
+                        Foto
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {participants.map((participant) => (
+                      <tr
+                        key={participant.id}
+                        className="border-t border-gray-700"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center space-x-3">
+                            {participant.photo_url ? (
+                              <Image
+                                src={participant.photo_url}
+                                alt={participant.name}
+                                width={32}
+                                height={32}
+                                className="rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-gray-600" />
+                            )}
+                            <div>
+                              <p className="font-medium">{participant.name}</p>
+                              {participant.is_admin && (
+                                <span className="text-xs text-fidelidade-red">Admin</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-fidelidade-lightgray">
+                          {participant.email}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {participant.artist_1 || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {participant.artist_2 || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {participant.artist_3 || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {participant.photo_url ? (
+                            <span className="text-green-400">✓</span>
+                          ) : (
+                            <span className="text-red-400">✗</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {participants.length === 0 && (
+                  <p className="text-center py-8 text-fidelidade-lightgray">
+                    Nenhum participante encontrado
+                  </p>
+                )}
               </div>
             )}
           </motion.div>

@@ -58,10 +58,10 @@ export default function ParticipantGrid({
               disabled={isAssigned}
               className={`relative flex flex-col items-center p-2 rounded-xl transition-all ${
                 isSelected
-                  ? "bg-fidelidade-red/20 ring-2 ring-fidelidade-red"
+                  ? "bg-fidelidade-red/20 border-2 border-fidelidade-red"
                   : isAssigned
-                    ? "opacity-30 cursor-not-allowed"
-                    : "hover:bg-fidelidade-dark"
+                    ? "opacity-30 cursor-not-allowed border-2 border-transparent"
+                    : "hover:bg-fidelidade-dark border-2 border-transparent"
               }`}
             >
               <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-gray-600 mb-1">
