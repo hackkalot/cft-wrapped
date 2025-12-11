@@ -322,7 +322,7 @@ export default function AdminPage() {
                         paddingAngle={5}
                         dataKey="count"
                         nameKey="status"
-                        label={({ status, count }) => `${status}: ${count}`}
+                        label={({ name, value }) => `${name}: ${value}`}
                         labelLine={false}
                       >
                         {chartStats.gameProgress.map((_, index) => (
@@ -420,8 +420,8 @@ export default function AdminPage() {
                         outerRadius={80}
                         dataKey="count"
                         nameKey="status"
-                        label={({ status, percent }) =>
-                          `${status}: ${(percent * 100).toFixed(0)}%`
+                        label={({ name, percent }) =>
+                          `${name}: ${((percent || 0) * 100).toFixed(0)}%`
                         }
                       >
                         {chartStats.registrationStatus.map((entry, index) => (
