@@ -165,22 +165,30 @@ export default function AdminPage() {
     }
   };
 
-  const handleInitDb = async () => {
-    try {
-      const res = await fetch("/api/admin/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initDb: true }),
-      });
-      const data = await res.json();
-      alert(data.message || "Base de dados inicializada!");
-    } catch (error) {
-      alert("Erro ao inicializar base de dados");
-    }
-  };
-
   const handleExport = (format: "csv" | "json") => {
     window.open(`/api/admin/export?format=${format}`, "_blank");
+  };
+
+  const handleReset = async () => {
+    if (!confirm("⚠️ ATENÇÃO: Isto vai apagar TODOS os dados (participantes, sessões, guesses)!\n\nTens a certeza que queres continuar?")) {
+      return;
+    }
+    if (!confirm("Última confirmação: Isto é irreversível. Confirmas?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/reset", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || "Base de dados limpa!");
+        loadData();
+      } else {
+        alert(data.error || "Erro ao limpar base de dados");
+      }
+    } catch {
+      alert("Erro de ligação");
+    }
   };
 
   const handleLogout = async () => {
@@ -651,6 +659,20 @@ export default function AdminPage() {
                   )}
                 </div>
               )}
+
+              {/* Reset Database Section */}
+              <div className="mt-8 pt-8 border-t border-gray-700">
+                <h3 className="text-lg font-semibold mb-2 text-red-400">Zona de Perigo</h3>
+                <p className="text-sm text-fidelidade-lightgray mb-4">
+                  Limpa todos os dados para começar um novo jogo. Esta ação é irreversível.
+                </p>
+                <button
+                  onClick={handleReset}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                >
+                  Limpar Base de Dados
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
