@@ -70,8 +70,9 @@ export function isAdmin(email: string): boolean {
 
 export function isGameOpen(): { open: boolean; message?: string } {
   const now = new Date();
-  const start = new Date(process.env.GAME_START_DATE || "2025-12-10T00:00:00Z");
-  const end = new Date(process.env.GAME_END_DATE || "2025-12-20T21:00:00Z");
+  // Hardcoded dates for reliability - game runs Dec 10-20, 2025
+  const start = new Date("2025-12-10T00:00:00Z");
+  const end = new Date("2025-12-20T21:00:00Z");
 
   if (now < start) {
     return {
