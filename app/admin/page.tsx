@@ -307,56 +307,6 @@ export default function AdminPage() {
                 )}
               </div>
 
-              {/* Game Progress Pie Chart */}
-              <div className="bg-fidelidade-gray rounded-xl p-6">
-                <h3 className="text-lg font-semibold mb-4">Progresso do Jogo</h3>
-                {chartStats?.gameProgress && chartStats.gameProgress.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={chartStats.gameProgress}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={5}
-                        dataKey="count"
-                        nameKey="status"
-                        label={({ name, value }) => `${name}: ${value}`}
-                        labelLine={false}
-                      >
-                        {chartStats.gameProgress.map((_, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "#282828",
-                          border: "none",
-                          borderRadius: "8px",
-                        }}
-                      />
-                      <Legend
-                        wrapperStyle={{ color: "#B3B3B3" }}
-                        formatter={(value) => (
-                          <span style={{ color: "#B3B3B3" }}>{value}</span>
-                        )}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="text-fidelidade-lightgray text-center py-12">
-                    Sem dados disponíveis
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Charts Row 2 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Score Distribution */}
               <div className="bg-fidelidade-gray rounded-xl p-6">
                 <h3 className="text-lg font-semibold mb-4">
@@ -406,58 +356,6 @@ export default function AdminPage() {
                 )}
               </div>
 
-              {/* Registration Status */}
-              <div className="bg-fidelidade-gray rounded-xl p-6">
-                <h3 className="text-lg font-semibold mb-4">Estado de Registo</h3>
-                {chartStats?.registrationStatus &&
-                chartStats.registrationStatus.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={250}>
-                    <PieChart>
-                      <Pie
-                        data={chartStats.registrationStatus}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        dataKey="count"
-                        nameKey="status"
-                        label={({ name, percent }) =>
-                          `${name}: ${((percent || 0) * 100).toFixed(0)}%`
-                        }
-                      >
-                        {chartStats.registrationStatus.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={
-                              entry.status === "Com foto" ? "#22c55e" : "#ef4444"
-                            }
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "#282828",
-                          border: "none",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <p className="text-fidelidade-lightgray text-center py-12">
-                    Sem dados disponíveis
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Init DB Button */}
-            <div className="pt-4">
-              <button
-                onClick={handleInitDb}
-                className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
-              >
-                Inicializar Base de Dados
-              </button>
             </div>
           </motion.div>
         )}
