@@ -41,7 +41,7 @@ export default function ParticipantGrid({
   return (
     <div className="bg-fidelidade-gray rounded-2xl p-4">
       <h3 className="text-sm font-medium text-fidelidade-lightgray mb-3">
-        Quem escolheu estes artistas?
+        Quem é fan destes artistas?
       </h3>
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 max-h-[300px] overflow-y-auto pr-2">
         {sortedParticipants.map((participant) => {
