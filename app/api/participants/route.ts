@@ -1,13 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getAllParticipants, updateParticipant, getParticipantsWithPhotos } from "@/lib/db";
+import { getAllParticipants, updateParticipant, getParticipantsWithPhotos, getRegistrationStatus } from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
 
     if (!session) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const includeAll = searchParams.get("all") === "true";
+
+    if (includeAll) {
+      // Return all participants (for waiting screen)
+      const allParticipants = await getAllParticipants();
+      const registrationStatus = await getRegistrationStatus();
+
+      const sanitizedParticipants = allParticipants
+        .filter((p) => !p.is_admin)
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          photoUrl: p.photo_url,
+          hasPhoto: !!p.photo_url,
+        }));
+
+      return NextResponse.json({
+        participants: sanitizedParticipants,
+        registrationStatus,
+      });
     }
 
     // For game, only return participants with photos (registered)

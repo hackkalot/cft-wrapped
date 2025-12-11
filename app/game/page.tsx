@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import ArtistCard from "@/components/ArtistCard";
 import ParticipantGrid from "@/components/ParticipantGrid";
 
@@ -16,6 +17,20 @@ interface Participant {
   id: string;
   name: string;
   photoUrl: string;
+}
+
+interface WaitingParticipant {
+  id: string;
+  name: string;
+  photoUrl: string | null;
+  hasPhoto: boolean;
+}
+
+interface RegistrationStatus {
+  total: number;
+  withPhoto: number;
+  missingPhoto: number;
+  allRegistered: boolean;
 }
 
 interface GameData {
@@ -36,6 +51,8 @@ export default function GamePage() {
   const [error, setError] = useState("");
   const [showCompletion, setShowCompletion] = useState(false);
   const [gameMessage, setGameMessage] = useState("");
+  const [waitingParticipants, setWaitingParticipants] = useState<WaitingParticipant[]>([]);
+  const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -54,6 +71,11 @@ export default function GamePage() {
 
       if (res.status === 403) {
         setGameMessage(data.error || "Jogo não disponível");
+        // If waiting for registrations, load participants list
+        if (data.registrationStatus) {
+          setRegistrationStatus(data.registrationStatus);
+          loadWaitingParticipants();
+        }
         setLoading(false);
         return;
       }
@@ -74,6 +96,19 @@ export default function GamePage() {
       setError("Erro de ligação");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadWaitingParticipants = async () => {
+    try {
+      const res = await fetch("/api/participants?all=true");
+      const data = await res.json();
+      if (res.ok) {
+        setWaitingParticipants(data.participants || []);
+        setRegistrationStatus(data.registrationStatus || null);
+      }
+    } catch {
+      console.error("Error loading participants");
     }
   };
 
@@ -203,23 +238,87 @@ export default function GamePage() {
 
   if (gameMessage) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <h1 className="text-2xl font-bold text-fidelidade-red mb-4">
-            Wrapped Guesser
-          </h1>
-          <p className="text-fidelidade-lightgray mb-6">{gameMessage}</p>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm text-fidelidade-lightgray hover:text-white transition-colors"
+      <div className="min-h-screen p-4">
+        <div className="max-w-lg mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
           >
-            Sair
-          </button>
-        </motion.div>
+            <h1 className="text-2xl font-bold text-fidelidade-red mb-4">
+              Wrapped Guesser
+            </h1>
+            <p className="text-fidelidade-lightgray mb-2">{gameMessage}</p>
+            {registrationStatus && (
+              <div className="mt-4 bg-fidelidade-gray rounded-xl p-4 inline-block">
+                <p className="text-sm text-white">
+                  <span className="text-fidelidade-red font-bold">{registrationStatus.withPhoto}</span>
+                  <span className="text-fidelidade-lightgray"> / {registrationStatus.total} registados</span>
+                </p>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Participants List */}
+          {waitingParticipants.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="bg-fidelidade-gray rounded-2xl p-4"
+            >
+              <h3 className="text-sm font-medium text-fidelidade-lightgray mb-4">
+                Participantes
+              </h3>
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                {waitingParticipants.map((participant) => (
+                  <div
+                    key={participant.id}
+                    className="flex items-center space-x-3"
+                  >
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                      {participant.photoUrl ? (
+                        <Image
+                          src={participant.photoUrl}
+                          alt={participant.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{participant.name}</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      {participant.hasPhoto ? (
+                        <span className="text-green-400 text-lg">✓</span>
+                      ) : (
+                        <span className="text-xs text-fidelidade-lightgray bg-fidelidade-dark px-2 py-1 rounded-full">
+                          A aguardar
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm text-fidelidade-lightgray hover:text-white transition-colors"
+            >
+              Sair
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
