@@ -312,6 +312,32 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
+// Check if all participants have registered with photos
+export async function getRegistrationStatus(): Promise<{
+  total: number;
+  withPhoto: number;
+  missingPhoto: number;
+  allRegistered: boolean;
+}> {
+  const total = await sql<{ count: string }>`
+    SELECT COUNT(*) as count FROM participants WHERE is_admin = FALSE
+  `;
+
+  const withPhoto = await sql<{ count: string }>`
+    SELECT COUNT(*) as count FROM participants WHERE photo_url IS NOT NULL AND is_admin = FALSE
+  `;
+
+  const totalCount = parseInt(total.rows[0]?.count || "0");
+  const withPhotoCount = parseInt(withPhoto.rows[0]?.count || "0");
+
+  return {
+    total: totalCount,
+    withPhoto: withPhotoCount,
+    missingPhoto: totalCount - withPhotoCount,
+    allRegistered: totalCount > 0 && totalCount === withPhotoCount,
+  };
+}
+
 // Stats for admin
 export async function getGameStats(): Promise<{
   totalParticipants: number;

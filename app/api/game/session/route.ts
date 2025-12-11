@@ -3,9 +3,9 @@ import { getSession, isGameOpen } from "@/lib/auth";
 import {
   getOrCreateGameSession,
   getGuessesForSession,
-  getAllParticipants,
   getParticipantsWithPhotos,
   getParticipantById,
+  getRegistrationStatus,
 } from "@/lib/db";
 
 export async function GET() {
@@ -21,6 +21,18 @@ export async function GET() {
     if (!gameStatus.open) {
       return NextResponse.json(
         { error: gameStatus.message, gameStatus },
+        { status: 403 }
+      );
+    }
+
+    // Check if all participants have registered with photos
+    const registrationStatus = await getRegistrationStatus();
+    if (!registrationStatus.allRegistered) {
+      return NextResponse.json(
+        {
+          error: `Aguarda que todos os participantes se registem com foto. Faltam ${registrationStatus.missingPhoto} de ${registrationStatus.total} participantes.`,
+          registrationStatus,
+        },
         { status: 403 }
       );
     }
