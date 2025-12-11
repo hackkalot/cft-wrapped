@@ -347,7 +347,7 @@ export default function GamePage() {
             As tuas respostas foram guardadas.
           </p>
           <p className="text-fidelidade-lightgray mb-8">
-            Os resultados serão revelados na reunião de equipa!
+            Os resultados serão revelados no jantar de Natal!
           </p>
           <button
             onClick={handleLogout}
