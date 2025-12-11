@@ -85,7 +85,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <h1 className="text-4xl font-bold text-fidelidade-red mb-2">
-              Wrapped Guesser
+              CFT FID I&D Wrapped
             </h1>
             <p className="text-fidelidade-lightgray text-lg">
               Fidelidade Innovation

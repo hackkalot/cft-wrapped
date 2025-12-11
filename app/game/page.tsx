@@ -246,7 +246,7 @@ export default function GamePage() {
             className="text-center mb-8"
           >
             <h1 className="text-2xl font-bold text-fidelidade-red mb-4">
-              Wrapped Guesser
+              CFT FID I&D Wrapped
             </h1>
             <p className="text-fidelidade-lightgray mb-2">{gameMessage}</p>
             {registrationStatus && (
@@ -399,7 +399,7 @@ export default function GamePage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-xl font-bold text-fidelidade-red">
-              Wrapped Guesser
+              CFT FID I&D Wrapped
             </h1>
             <p className="text-xs text-fidelidade-lightgray">
               {completedCount}/{gameData.totalCards} completos

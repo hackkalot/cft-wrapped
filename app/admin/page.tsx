@@ -205,7 +205,7 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-fidelidade-red">
               Admin Dashboard
             </h1>
-            <p className="text-fidelidade-lightgray">Wrapped Guesser</p>
+            <p className="text-fidelidade-lightgray">CFT FID I&D Wrapped</p>
           </div>
           <button
             onClick={handleLogout}
