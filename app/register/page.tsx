@@ -111,7 +111,7 @@ export default function RegisterPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-green"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-fidelidade-red"></div>
       </div>
     );
   }
@@ -125,21 +125,21 @@ export default function RegisterPage() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-spotify-green mb-2">
+          <h1 className="text-3xl font-bold text-fidelidade-red mb-2">
             Completa o teu registo
           </h1>
-          <p className="text-spotify-lightgray">
+          <p className="text-fidelidade-lightgray">
             Adiciona a tua foto para participar no jogo
           </p>
         </div>
 
-        <div className="bg-spotify-gray rounded-2xl p-8 shadow-xl">
+        <div className="bg-fidelidade-gray rounded-2xl p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Photo Upload */}
             <div className="flex flex-col items-center">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="relative w-32 h-32 rounded-full overflow-hidden bg-spotify-dark border-2 border-dashed border-gray-600 hover:border-spotify-green transition-colors cursor-pointer flex items-center justify-center"
+                className="relative w-32 h-32 rounded-full overflow-hidden bg-fidelidade-dark border-2 border-dashed border-gray-600 hover:border-fidelidade-red transition-colors cursor-pointer flex items-center justify-center"
               >
                 {previewUrl ? (
                   <Image
@@ -188,7 +188,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-spotify-lightgray mb-2"
+                className="block text-sm font-medium text-fidelidade-lightgray mb-2"
               >
                 Nome
               </label>
@@ -198,7 +198,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="O teu nome"
-                className="w-full px-4 py-3 bg-spotify-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent text-white placeholder-gray-500"
+                className="w-full px-4 py-3 bg-fidelidade-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-fidelidade-red focus:border-transparent text-white placeholder-gray-500"
                 required
               />
             </div>
@@ -216,12 +216,12 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={saving || uploading || !photoUrl || !name}
-              className="w-full py-3 px-4 bg-spotify-green text-black font-semibold rounded-full hover:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-4 bg-fidelidade-red text-white font-semibold rounded-full hover:bg-fidelidade-darkred transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <span className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-black"
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"

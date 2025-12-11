@@ -149,7 +149,7 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-green"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-fidelidade-red"></div>
       </div>
     );
   }
@@ -160,14 +160,14 @@ export default function AdminPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-spotify-green">
+            <h1 className="text-3xl font-bold text-fidelidade-red">
               Admin Dashboard
             </h1>
-            <p className="text-spotify-lightgray">Wrapped Guesser</p>
+            <p className="text-fidelidade-lightgray">Wrapped Guesser</p>
           </div>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-sm text-spotify-lightgray hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-fidelidade-lightgray hover:text-white transition-colors"
           >
             Sair
           </button>
@@ -181,8 +181,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab(tab)}
               className={`pb-3 px-2 font-medium transition-colors ${
                 activeTab === tab
-                  ? "text-spotify-green border-b-2 border-spotify-green"
-                  : "text-spotify-lightgray hover:text-white"
+                  ? "text-fidelidade-red border-b-2 border-fidelidade-red"
+                  : "text-fidelidade-lightgray hover:text-white"
               }`}
             >
               {tab === "overview"
@@ -209,7 +209,7 @@ export default function AdminPage() {
             <StatCard
               label="Registados (c/ foto)"
               value={stats?.registeredWithPhoto || 0}
-              color="text-spotify-green"
+              color="text-fidelidade-red"
             />
             <StatCard
               label="Jogos Completos"
@@ -239,13 +239,13 @@ export default function AdminPage() {
             <div className="flex justify-end mb-4 space-x-2">
               <button
                 onClick={() => handleExport("csv")}
-                className="px-4 py-2 bg-spotify-gray text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                className="px-4 py-2 bg-fidelidade-gray text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
               >
                 Exportar CSV
               </button>
               <button
                 onClick={() => handleExport("json")}
-                className="px-4 py-2 bg-spotify-gray text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
+                className="px-4 py-2 bg-fidelidade-gray text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
               >
                 Exportar JSON
               </button>
@@ -253,26 +253,26 @@ export default function AdminPage() {
 
             {loading ? (
               <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-spotify-green"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-fidelidade-red"></div>
               </div>
             ) : (
-              <div className="bg-spotify-gray rounded-xl overflow-hidden">
+              <div className="bg-fidelidade-gray rounded-xl overflow-hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-spotify-dark">
-                      <th className="px-4 py-3 text-left text-sm font-medium text-spotify-lightgray">
+                    <tr className="bg-fidelidade-dark">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-fidelidade-lightgray">
                         #
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-spotify-lightgray">
+                      <th className="px-4 py-3 text-left text-sm font-medium text-fidelidade-lightgray">
                         Participante
                       </th>
-                      <th className="px-4 py-3 text-center text-sm font-medium text-spotify-lightgray">
+                      <th className="px-4 py-3 text-center text-sm font-medium text-fidelidade-lightgray">
                         Pontuação
                       </th>
-                      <th className="px-4 py-3 text-center text-sm font-medium text-spotify-lightgray">
+                      <th className="px-4 py-3 text-center text-sm font-medium text-fidelidade-lightgray">
                         Estado
                       </th>
-                      <th className="px-4 py-3 text-right text-sm font-medium text-spotify-lightgray">
+                      <th className="px-4 py-3 text-right text-sm font-medium text-fidelidade-lightgray">
                         Conclusão
                       </th>
                     </tr>
@@ -301,17 +301,17 @@ export default function AdminPage() {
                             )}
                             <div>
                               <p className="font-medium">{score.name}</p>
-                              <p className="text-xs text-spotify-lightgray">
+                              <p className="text-xs text-fidelidade-lightgray">
                                 {score.email}
                               </p>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <span className="text-lg font-bold text-spotify-green">
+                          <span className="text-lg font-bold text-fidelidade-red">
                             {score.score}
                           </span>
-                          <span className="text-sm text-spotify-lightgray">
+                          <span className="text-sm text-fidelidade-lightgray">
                             /{score.total_cards}
                           </span>
                         </td>
@@ -330,7 +330,7 @@ export default function AdminPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right text-sm text-spotify-lightgray">
+                        <td className="px-4 py-3 text-right text-sm text-fidelidade-lightgray">
                           {score.completed_at
                             ? new Date(score.completed_at).toLocaleString(
                                 "pt-PT"
@@ -349,9 +349,9 @@ export default function AdminPage() {
         {/* Import Tab */}
         {activeTab === "import" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="bg-spotify-gray rounded-xl p-6">
+            <div className="bg-fidelidade-gray rounded-xl p-6">
               <h2 className="text-lg font-semibold mb-4">Importar CSV</h2>
-              <p className="text-sm text-spotify-lightgray mb-4">
+              <p className="text-sm text-fidelidade-lightgray mb-4">
                 Formato esperado: name, email, artist_1, artist_2, artist_3
               </p>
 
@@ -365,7 +365,7 @@ export default function AdminPage() {
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 bg-spotify-dark border border-gray-600 text-white rounded-lg hover:border-spotify-green transition-colors"
+                className="px-4 py-2 bg-fidelidade-dark border border-gray-600 text-white rounded-lg hover:border-fidelidade-red transition-colors"
               >
                 Selecionar Ficheiro CSV
               </button>
@@ -375,7 +375,7 @@ export default function AdminPage() {
                   <h3 className="text-sm font-medium mb-2">
                     Preview ({csvPreview.length} participantes)
                   </h3>
-                  <div className="max-h-64 overflow-auto bg-spotify-dark rounded-lg">
+                  <div className="max-h-64 overflow-auto bg-fidelidade-dark rounded-lg">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-gray-700">
@@ -390,7 +390,7 @@ export default function AdminPage() {
                         {csvPreview.slice(0, 10).map((row, i) => (
                           <tr key={i} className="border-b border-gray-800">
                             <td className="px-3 py-2">{row.name}</td>
-                            <td className="px-3 py-2 text-spotify-lightgray">
+                            <td className="px-3 py-2 text-fidelidade-lightgray">
                               {row.email}
                             </td>
                             <td className="px-3 py-2">{row.artist_1}</td>
@@ -410,7 +410,7 @@ export default function AdminPage() {
                   <button
                     onClick={handleImport}
                     disabled={importing}
-                    className="mt-4 px-6 py-2 bg-spotify-green text-black font-semibold rounded-full hover:bg-green-400 transition-colors disabled:opacity-50"
+                    className="mt-4 px-6 py-2 bg-fidelidade-red text-black font-semibold rounded-full hover:bg-green-400 transition-colors disabled:opacity-50"
                   >
                     {importing ? "A importar..." : "Importar"}
                   </button>
@@ -418,7 +418,7 @@ export default function AdminPage() {
               )}
 
               {importResult && (
-                <div className="mt-4 p-4 rounded-lg bg-spotify-dark">
+                <div className="mt-4 p-4 rounded-lg bg-fidelidade-dark">
                   <p className="text-green-400">
                     {importResult.imported} participantes importados
                   </p>
@@ -452,8 +452,8 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-spotify-gray rounded-xl p-6">
-      <p className="text-sm text-spotify-lightgray mb-1">{label}</p>
+    <div className="bg-fidelidade-gray rounded-xl p-6">
+      <p className="text-sm text-fidelidade-lightgray mb-1">{label}</p>
       <p className={`text-3xl font-bold ${color}`}>{value}</p>
     </div>
   );

@@ -196,7 +196,7 @@ export default function GamePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-green"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-fidelidade-red"></div>
       </div>
     );
   }
@@ -209,13 +209,13 @@ export default function GamePage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-2xl font-bold text-spotify-green mb-4">
+          <h1 className="text-2xl font-bold text-fidelidade-red mb-4">
             Wrapped Guesser
           </h1>
-          <p className="text-spotify-lightgray mb-6">{gameMessage}</p>
+          <p className="text-fidelidade-lightgray mb-6">{gameMessage}</p>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-sm text-spotify-lightgray hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-fidelidade-lightgray hover:text-white transition-colors"
           >
             Sair
           </button>
@@ -232,27 +232,27 @@ export default function GamePage() {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md"
         >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-spotify-green/20 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-fidelidade-red/20 flex items-center justify-center">
             <svg
-              className="w-10 h-10 text-spotify-green"
+              className="w-10 h-10 text-fidelidade-red"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-spotify-green mb-4">
+          <h1 className="text-3xl font-bold text-fidelidade-red mb-4">
             Obrigado por jogares!
           </h1>
-          <p className="text-spotify-lightgray mb-2">
+          <p className="text-fidelidade-lightgray mb-2">
             As tuas respostas foram guardadas.
           </p>
-          <p className="text-spotify-lightgray mb-8">
+          <p className="text-fidelidade-lightgray mb-8">
             Os resultados serão revelados na reunião de equipa!
           </p>
           <button
             onClick={handleLogout}
-            className="px-6 py-3 bg-spotify-gray text-white rounded-full hover:bg-gray-700 transition-colors"
+            className="px-6 py-3 bg-fidelidade-gray text-white rounded-full hover:bg-gray-700 transition-colors"
           >
             Sair
           </button>
@@ -264,12 +264,12 @@ export default function GamePage() {
   if (!gameData || gameData.cards.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <p className="text-spotify-lightgray">
+        <p className="text-fidelidade-lightgray">
           Ainda não há participantes suficientes registados.
         </p>
         <button
           onClick={handleLogout}
-          className="mt-4 px-4 py-2 text-sm text-spotify-lightgray hover:text-white transition-colors"
+          className="mt-4 px-4 py-2 text-sm text-fidelidade-lightgray hover:text-white transition-colors"
         >
           Sair
         </button>
@@ -299,16 +299,16 @@ export default function GamePage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-xl font-bold text-spotify-green">
+            <h1 className="text-xl font-bold text-fidelidade-red">
               Wrapped Guesser
             </h1>
-            <p className="text-xs text-spotify-lightgray">
+            <p className="text-xs text-fidelidade-lightgray">
               {completedCount}/{gameData.totalCards} completos
             </p>
           </div>
           <button
             onClick={handleLogout}
-            className="px-3 py-1 text-sm text-spotify-lightgray hover:text-white transition-colors"
+            className="px-3 py-1 text-sm text-fidelidade-lightgray hover:text-white transition-colors"
           >
             Sair
           </button>
@@ -349,14 +349,14 @@ export default function GamePage() {
         )}
 
         {/* Submit Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-spotify-dark to-transparent">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-fidelidade-dark to-transparent">
           <div className="max-w-lg mx-auto">
             <button
               onClick={handleSubmit}
               disabled={!allComplete || submitting}
               className={`w-full py-4 px-6 rounded-full font-semibold transition-all ${
                 allComplete
-                  ? "bg-spotify-green text-black hover:bg-green-400"
+                  ? "bg-fidelidade-red text-white hover:bg-fidelidade-darkred"
                   : "bg-gray-700 text-gray-400 cursor-not-allowed"
               }`}
             >

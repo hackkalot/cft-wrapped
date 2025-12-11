@@ -9,9 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        spotify: {
-          green: "#1DB954",
-          black: "#191414",
+        fidelidade: {
+          red: "#E30613",
+          darkred: "#B8050F",
+          black: "#1A1A1A",
           dark: "#121212",
           gray: "#282828",
           lightgray: "#B3B3B3",

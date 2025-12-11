@@ -65,7 +65,7 @@ export default function Home() {
   if (checkingSession) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-green"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-fidelidade-red"></div>
       </div>
     );
   }
@@ -84,10 +84,10 @@ export default function Home() {
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h1 className="text-4xl font-bold text-spotify-green mb-2">
+            <h1 className="text-4xl font-bold text-fidelidade-red mb-2">
               Wrapped Guesser
             </h1>
-            <p className="text-spotify-lightgray text-lg">
+            <p className="text-fidelidade-lightgray text-lg">
               Fidelidade Innovation
             </p>
           </motion.div>
@@ -97,7 +97,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-spotify-gray rounded-2xl p-8 shadow-xl"
+          className="bg-fidelidade-gray rounded-2xl p-8 shadow-xl"
         >
           <h2 className="text-xl font-semibold text-center mb-6">
             Adivinha quem escolheu cada Top 3!
@@ -107,7 +107,7 @@ export default function Home() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-spotify-lightgray mb-2"
+                className="block text-sm font-medium text-fidelidade-lightgray mb-2"
               >
                 Email da empresa
               </label>
@@ -117,7 +117,7 @@ export default function Home() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nome@fidelidade.pt"
-                className="w-full px-4 py-3 bg-spotify-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-spotify-green focus:border-transparent text-white placeholder-gray-500"
+                className="w-full px-4 py-3 bg-fidelidade-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-fidelidade-red focus:border-transparent text-white placeholder-gray-500"
                 required
                 disabled={loading}
               />
@@ -136,12 +136,12 @@ export default function Home() {
             <button
               type="submit"
               disabled={loading || !email}
-              className="w-full py-3 px-4 bg-spotify-green text-black font-semibold rounded-full hover:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-4 bg-fidelidade-red text-white font-semibold rounded-full hover:bg-fidelidade-darkred transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-black"
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -168,7 +168,7 @@ export default function Home() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-spotify-lightgray">
+          <p className="mt-6 text-center text-sm text-fidelidade-lightgray">
             Usa o email com que te registaste no formulário do Wrapped
           </p>
         </motion.div>

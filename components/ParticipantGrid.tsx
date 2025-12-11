@@ -39,8 +39,8 @@ export default function ParticipantGrid({
   });
 
   return (
-    <div className="bg-spotify-gray rounded-2xl p-4">
-      <h3 className="text-sm font-medium text-spotify-lightgray mb-3">
+    <div className="bg-fidelidade-gray rounded-2xl p-4">
+      <h3 className="text-sm font-medium text-fidelidade-lightgray mb-3">
         Quem escolheu estes artistas?
       </h3>
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 max-h-[300px] overflow-y-auto pr-2">
@@ -58,10 +58,10 @@ export default function ParticipantGrid({
               disabled={isAssigned}
               className={`relative flex flex-col items-center p-2 rounded-xl transition-all ${
                 isSelected
-                  ? "bg-spotify-green/20 ring-2 ring-spotify-green"
+                  ? "bg-fidelidade-red/20 ring-2 ring-fidelidade-red"
                   : isAssigned
                     ? "opacity-30 cursor-not-allowed"
-                    : "hover:bg-spotify-dark"
+                    : "hover:bg-fidelidade-dark"
               }`}
             >
               <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-gray-600 mb-1">
@@ -91,9 +91,9 @@ export default function ParticipantGrid({
                   </div>
                 )}
                 {isSelected && (
-                  <div className="absolute inset-0 bg-spotify-green/30 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-fidelidade-red/30 flex items-center justify-center">
                     <svg
-                      className="w-6 h-6 text-spotify-green"
+                      className="w-6 h-6 text-fidelidade-red"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
