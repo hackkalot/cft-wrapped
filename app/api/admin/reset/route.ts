@@ -13,7 +13,7 @@ export async function POST() {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    if (!isAdmin(session.email)) {
+    if (!(await isAdmin(session.email))) {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 

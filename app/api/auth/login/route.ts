@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getParticipantByEmail } from "@/lib/db";
-import { createSession, setSessionCookie, isAdmin } from "@/lib/auth";
+import { createSession, setSessionCookie } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,12 +25,12 @@ export async function POST(request: NextRequest) {
     // Check if user needs to complete registration (upload photo)
     const needsRegistration = !participant.photo_url;
 
-    // Create session
+    // Create session - use is_admin from database
     const token = await createSession({
       participantId: participant.id,
       email: participant.email,
       name: participant.name,
-      isAdmin: isAdmin(participant.email),
+      isAdmin: participant.is_admin === true,
       photoUrl: participant.photo_url || undefined,
     });
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         name: participant.name,
         email: participant.email,
         photoUrl: participant.photo_url,
-        isAdmin: isAdmin(participant.email),
+        isAdmin: participant.is_admin === true,
       },
       needsRegistration,
     });

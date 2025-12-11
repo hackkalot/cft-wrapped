@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { cookies } from "next/headers";
+import { sql } from "@vercel/postgres";
 
 const secretKey = new TextEncoder().encode(
   process.env.SESSION_SECRET || "default-secret-key-change-in-production-32"
@@ -61,11 +62,16 @@ export async function clearSession(): Promise<void> {
   cookieStore.delete("session");
 }
 
-export function isAdmin(email: string): boolean {
-  const adminEmails =
-    process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim().toLowerCase()) ||
-    [];
-  return adminEmails.includes(email.toLowerCase());
+export async function isAdmin(email: string): Promise<boolean> {
+  try {
+    const result = await sql`
+      SELECT is_admin FROM participants
+      WHERE LOWER(email) = LOWER(${email})
+    `;
+    return result.rows[0]?.is_admin === true;
+  } catch {
+    return false;
+  }
 }
 
 export function isGameOpen(): { open: boolean; message?: string } {
