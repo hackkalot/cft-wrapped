@@ -179,7 +179,7 @@ export default function Home() {
           transition={{ delay: 0.5 }}
           className="text-center text-xs text-gray-500 mt-8"
         >
-          Jogo de Team Building - Dezembro 2024
+          Jogo de Team Building - Dezembro 2025
         </motion.p>
       </motion.div>
     </main>
