@@ -88,7 +88,7 @@ export default function Home() {
               CFT FID I&D Wrapped
             </h1>
             <p className="text-fidelidade-lightgray text-lg">
-              Fidelidade Innovation
+              Bem vindo ao jogo!
             </p>
           </motion.div>
         </div>
@@ -100,7 +100,7 @@ export default function Home() {
           className="bg-fidelidade-gray rounded-2xl p-8 shadow-xl"
         >
           <h2 className="text-xl font-semibold text-center mb-6">
-            Adivinha quem escolheu cada Top 3!
+            Adivinha os top 3 artistas de cada colega!
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -169,7 +169,7 @@ export default function Home() {
           </form>
 
           <p className="mt-6 text-center text-sm text-fidelidade-lightgray">
-            Usa o email com que te registaste no formulário do Wrapped
+            Usa o mesmo email que usaste para submeter as tuas respostas
           </p>
         </motion.div>
 
