@@ -54,7 +54,7 @@ export async function GET() {
       ORDER BY date ASC
     `;
 
-    // Get registration status breakdown
+    // Get registration status breakdown (admins are also players)
     const registrationStatusResult = await sql`
       SELECT
         CASE
@@ -63,14 +63,13 @@ export async function GET() {
         END as status,
         COUNT(*) as count
       FROM participants
-      WHERE is_admin = false
       GROUP BY CASE
           WHEN photo_url IS NOT NULL THEN 'Com foto'
           ELSE 'Sem foto'
         END
     `;
 
-    // Get game progress breakdown
+    // Get game progress breakdown (admins are also players)
     const gameProgressResult = await sql`
       SELECT status, COUNT(*) as count FROM (
         SELECT
@@ -81,7 +80,6 @@ export async function GET() {
           END as status
         FROM participants p
         LEFT JOIN game_sessions gs ON gs.player_id = p.id
-        WHERE p.is_admin = false
       ) as progress
       GROUP BY status
     `;

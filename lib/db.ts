@@ -313,6 +313,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 // Check if all participants have registered with photos
+// Note: Admins are also players, so they are included in the count
 export async function getRegistrationStatus(): Promise<{
   total: number;
   withPhoto: number;
@@ -320,11 +321,11 @@ export async function getRegistrationStatus(): Promise<{
   allRegistered: boolean;
 }> {
   const total = await sql<{ count: string }>`
-    SELECT COUNT(*) as count FROM participants WHERE is_admin = FALSE
+    SELECT COUNT(*) as count FROM participants
   `;
 
   const withPhoto = await sql<{ count: string }>`
-    SELECT COUNT(*) as count FROM participants WHERE photo_url IS NOT NULL AND is_admin = FALSE
+    SELECT COUNT(*) as count FROM participants WHERE photo_url IS NOT NULL
   `;
 
   const totalCount = parseInt(total.rows[0]?.count || "0");

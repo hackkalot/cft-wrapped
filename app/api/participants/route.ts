@@ -15,17 +15,16 @@ export async function GET(request: NextRequest) {
 
     if (includeAll) {
       // Return all participants (for waiting screen)
+      // Admins are also players, so include everyone
       const allParticipants = await getAllParticipants();
       const registrationStatus = await getRegistrationStatus();
 
-      const sanitizedParticipants = allParticipants
-        .filter((p) => !p.is_admin)
-        .map((p) => ({
-          id: p.id,
-          name: p.name,
-          photoUrl: p.photo_url,
-          hasPhoto: !!p.photo_url,
-        }));
+      const sanitizedParticipants = allParticipants.map((p) => ({
+        id: p.id,
+        name: p.name,
+        photoUrl: p.photo_url,
+        hasPhoto: !!p.photo_url,
+      }));
 
       return NextResponse.json({
         participants: sanitizedParticipants,
