@@ -13,14 +13,14 @@ export default function Home() {
 
   useEffect(() => {
     // Check if already logged in
+    // Admins follow the same flow as regular users (register -> game)
+    // They can access /admin manually if needed
     fetch("/api/auth/me")
       .then((res) => res.json())
       .then((data) => {
         if (data.id) {
           if (data.needsRegistration) {
             router.push("/register");
-          } else if (data.isAdmin) {
-            router.push("/admin");
           } else {
             router.push("/game");
           }
@@ -48,10 +48,10 @@ export default function Home() {
         return;
       }
 
+      // Admins follow the same flow as regular users
+      // They can access /admin manually if needed
       if (data.needsRegistration) {
         router.push("/register");
-      } else if (data.participant.isAdmin) {
-        router.push("/admin");
       } else {
         router.push("/game");
       }
