@@ -517,17 +517,16 @@ export default function AdminPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center space-x-3">
-                            {score.photo_url ? (
-                              <Image
-                                src={score.photo_url}
-                                alt={score.name}
-                                width={32}
-                                height={32}
-                                className="rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-gray-600" />
-                            )}
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                              {score.photo_url && (
+                                <Image
+                                  src={score.photo_url}
+                                  alt={score.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              )}
+                            </div>
                             <div>
                               <p className="font-medium">{score.name}</p>
                               <p className="text-xs text-fidelidade-lightgray">
@@ -615,17 +614,16 @@ export default function AdminPage() {
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center space-x-3">
-                            {participant.photo_url ? (
-                              <Image
-                                src={participant.photo_url}
-                                alt={participant.name}
-                                width={32}
-                                height={32}
-                                className="rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-gray-600" />
-                            )}
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                              {participant.photo_url && (
+                                <Image
+                                  src={participant.photo_url}
+                                  alt={participant.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              )}
+                            </div>
                             <div>
                               <p className="font-medium">{participant.name}</p>
                               {participant.is_admin && (
