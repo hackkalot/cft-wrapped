@@ -5,6 +5,18 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Papa from "papaparse";
 import Image from "next/image";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
 interface Score {
   participant_id: string;
@@ -35,13 +47,23 @@ interface Participant {
   is_admin: boolean;
 }
 
+interface ChartStats {
+  topArtists: Array<{ artist: string; count: number }>;
+  scoreDistribution: Array<{ score: number; count: number }>;
+  registrationStatus: Array<{ status: string; count: number }>;
+  gameProgress: Array<{ status: string; count: number }>;
+}
+
 type Tab = "overview" | "scores" | "participants" | "import";
+
+const COLORS = ["#E30613", "#22c55e", "#eab308", "#6366f1", "#ec4899", "#14b8a6"];
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [scores, setScores] = useState<Score[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [chartStats, setChartStats] = useState<ChartStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<{
@@ -75,15 +97,18 @@ export default function AdminPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [scoresRes, participantsRes] = await Promise.all([
+      const [scoresRes, participantsRes, statsRes] = await Promise.all([
         fetch("/api/admin/scores"),
         fetch("/api/admin/participants"),
+        fetch("/api/admin/stats"),
       ]);
       const scoresData = await scoresRes.json();
       const participantsData = await participantsRes.json();
+      const statsData = await statsRes.json();
       setScores(scoresData.scores || []);
       setStats(scoresData.stats || null);
       setParticipants(participantsData.participants || []);
+      setChartStats(statsData);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -218,30 +243,215 @@ export default function AdminPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            className="space-y-6"
           >
-            <StatCard
-              label="Total Participantes"
-              value={stats?.totalParticipants || 0}
-              color="text-white"
-            />
-            <StatCard
-              label="Registados (c/ foto)"
-              value={stats?.registeredWithPhoto || 0}
-              color="text-fidelidade-red"
-            />
-            <StatCard
-              label="Jogos Completos"
-              value={stats?.completedGames || 0}
-              color="text-green-400"
-            />
-            <StatCard
-              label="Em Progresso"
-              value={stats?.inProgress || 0}
-              color="text-yellow-400"
-            />
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatCard
+                label="Total Participantes"
+                value={stats?.totalParticipants || 0}
+                color="text-white"
+              />
+              <StatCard
+                label="Registados (c/ foto)"
+                value={stats?.registeredWithPhoto || 0}
+                color="text-fidelidade-red"
+              />
+              <StatCard
+                label="Jogos Completos"
+                value={stats?.completedGames || 0}
+                color="text-green-400"
+              />
+              <StatCard
+                label="Em Progresso"
+                value={stats?.inProgress || 0}
+                color="text-yellow-400"
+              />
+            </div>
 
-            <div className="col-span-2 md:col-span-4 mt-4">
+            {/* Charts Row 1 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Top Artists Chart */}
+              <div className="bg-fidelidade-gray rounded-xl p-6">
+                <h3 className="text-lg font-semibold mb-4">Top 10 Artistas</h3>
+                {chartStats?.topArtists && chartStats.topArtists.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart
+                      data={chartStats.topArtists}
+                      layout="vertical"
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <XAxis type="number" stroke="#B3B3B3" />
+                      <YAxis
+                        type="category"
+                        dataKey="artist"
+                        stroke="#B3B3B3"
+                        width={100}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#282828",
+                          border: "none",
+                          borderRadius: "8px",
+                        }}
+                        labelStyle={{ color: "#fff" }}
+                      />
+                      <Bar dataKey="count" fill="#E30613" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-fidelidade-lightgray text-center py-12">
+                    Sem dados disponíveis
+                  </p>
+                )}
+              </div>
+
+              {/* Game Progress Pie Chart */}
+              <div className="bg-fidelidade-gray rounded-xl p-6">
+                <h3 className="text-lg font-semibold mb-4">Progresso do Jogo</h3>
+                {chartStats?.gameProgress && chartStats.gameProgress.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={chartStats.gameProgress}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={5}
+                        dataKey="count"
+                        nameKey="status"
+                        label={({ status, count }) => `${status}: ${count}`}
+                        labelLine={false}
+                      >
+                        {chartStats.gameProgress.map((_, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#282828",
+                          border: "none",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Legend
+                        wrapperStyle={{ color: "#B3B3B3" }}
+                        formatter={(value) => (
+                          <span style={{ color: "#B3B3B3" }}>{value}</span>
+                        )}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-fidelidade-lightgray text-center py-12">
+                    Sem dados disponíveis
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Charts Row 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Score Distribution */}
+              <div className="bg-fidelidade-gray rounded-xl p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  Distribuição de Pontuações
+                </h3>
+                {chartStats?.scoreDistribution &&
+                chartStats.scoreDistribution.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart
+                      data={chartStats.scoreDistribution}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <XAxis
+                        dataKey="score"
+                        stroke="#B3B3B3"
+                        label={{
+                          value: "Pontuação",
+                          position: "bottom",
+                          fill: "#B3B3B3",
+                        }}
+                      />
+                      <YAxis
+                        stroke="#B3B3B3"
+                        label={{
+                          value: "Jogadores",
+                          angle: -90,
+                          position: "insideLeft",
+                          fill: "#B3B3B3",
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#282828",
+                          border: "none",
+                          borderRadius: "8px",
+                        }}
+                        labelFormatter={(value) => `Pontuação: ${value}`}
+                        formatter={(value) => [`${value} jogadores`, "Total"]}
+                      />
+                      <Bar dataKey="count" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-fidelidade-lightgray text-center py-12">
+                    Sem dados disponíveis
+                  </p>
+                )}
+              </div>
+
+              {/* Registration Status */}
+              <div className="bg-fidelidade-gray rounded-xl p-6">
+                <h3 className="text-lg font-semibold mb-4">Estado de Registo</h3>
+                {chartStats?.registrationStatus &&
+                chartStats.registrationStatus.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                      <Pie
+                        data={chartStats.registrationStatus}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        dataKey="count"
+                        nameKey="status"
+                        label={({ status, percent }) =>
+                          `${status}: ${(percent * 100).toFixed(0)}%`
+                        }
+                      >
+                        {chartStats.registrationStatus.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={
+                              entry.status === "Com foto" ? "#22c55e" : "#ef4444"
+                            }
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#282828",
+                          border: "none",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-fidelidade-lightgray text-center py-12">
+                    Sem dados disponíveis
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Init DB Button */}
+            <div className="pt-4">
               <button
                 onClick={handleInitDb}
                 className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
