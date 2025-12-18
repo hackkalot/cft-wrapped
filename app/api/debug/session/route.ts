@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, isGameOpen } from "@/lib/auth";
 import { sql } from "@vercel/postgres";
+import { getRegistrationStatus } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -36,6 +37,12 @@ export async function GET() {
       SELECT COUNT(*) as count FROM participants WHERE photo_url IS NOT NULL
     `;
 
+    // Check game open status
+    const gameOpenStatus = isGameOpen();
+
+    // Check registration status
+    const registrationStatus = await getRegistrationStatus();
+
     return NextResponse.json({
       sessionPayload: {
         participantId: session.participantId,
@@ -55,6 +62,8 @@ export async function GET() {
       } : null,
       guessesCount: guessesCount?.rows[0]?.count || 0,
       totalParticipantsWithPhoto: totalParticipants.rows[0]?.count || 0,
+      gameOpenStatus,
+      registrationStatus,
     });
   } catch (error) {
     console.error("Debug session error:", error);
