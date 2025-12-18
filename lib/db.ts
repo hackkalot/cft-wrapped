@@ -401,12 +401,27 @@ export async function setRevealDate(date: string | null): Promise<void> {
 }
 
 export async function isRevealEnabled(): Promise<boolean> {
-  const revealDate = await getRevealDate();
-  if (!revealDate) return false;
+  try {
+    const revealDate = await getRevealDate();
+    if (!revealDate) return false;
 
-  const now = new Date();
-  const reveal = new Date(revealDate);
-  return now >= reveal;
+    const now = new Date();
+    const reveal = new Date(revealDate);
+    return now >= reveal;
+  } catch (error) {
+    // If table doesn't exist, create it and return false
+    if (String(error).includes("does not exist")) {
+      await sql`
+        CREATE TABLE IF NOT EXISTS game_settings (
+          key VARCHAR(255) PRIMARY KEY,
+          value TEXT,
+          updated_at TIMESTAMP DEFAULT NOW()
+        )
+      `;
+      return false;
+    }
+    throw error;
+  }
 }
 
 // Get correct answers for a session (only when reveal is enabled)
