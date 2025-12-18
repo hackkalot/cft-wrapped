@@ -84,12 +84,13 @@ export async function GET() {
         photoUrl: p.photo_url,
       }));
 
-    // Check if reveal is enabled
+    // Check if reveal is enabled (admins can always see answers)
     const revealEnabled = await isRevealEnabled();
+    const canSeeAnswers = revealEnabled || session.isAdmin;
 
-    // Get correct answers only if reveal is enabled and game is completed
+    // Get correct answers if reveal is enabled (or admin) and game is completed
     let correctAnswers: Record<string, { isCorrect: boolean; correctParticipantId: string }> = {};
-    if (revealEnabled && gameSession.is_completed) {
+    if (canSeeAnswers && gameSession.is_completed) {
       correctAnswers = await getCorrectAnswersForSession(gameSession.id);
     }
 
@@ -100,7 +101,7 @@ export async function GET() {
       guesses: guessesMap,
       participants: gridParticipants,
       totalCards: cardOrder.length,
-      revealEnabled,
+      revealEnabled: canSeeAnswers,
       correctAnswers,
     });
   } catch (error) {
