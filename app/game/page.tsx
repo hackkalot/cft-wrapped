@@ -33,6 +33,11 @@ interface RegistrationStatus {
   allRegistered: boolean;
 }
 
+interface CorrectAnswer {
+  isCorrect: boolean;
+  correctParticipantId: string;
+}
+
 interface GameData {
   sessionId: string;
   isCompleted: boolean;
@@ -40,6 +45,8 @@ interface GameData {
   guesses: Record<string, string>;
   participants: Participant[];
   totalCards: number;
+  revealEnabled?: boolean;
+  correctAnswers?: Record<string, CorrectAnswer>;
 }
 
 export default function GamePage() {
@@ -323,7 +330,12 @@ export default function GamePage() {
     );
   }
 
-  if (showCompletion) {
+  if (showCompletion && gameData) {
+    const canReveal = gameData.revealEnabled && gameData.correctAnswers;
+    const correctCount = canReveal
+      ? Object.values(gameData.correctAnswers || {}).filter((a) => a.isCorrect).length
+      : 0;
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <motion.div
@@ -341,14 +353,33 @@ export default function GamePage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-fidelidade-red mb-4">
-            Obrigado por jogares!
+            {canReveal ? "Os teus resultados!" : "Obrigado por jogares!"}
           </h1>
-          <p className="text-fidelidade-lightgray mb-2">
-            As tuas respostas foram guardadas.
-          </p>
-          <p className="text-fidelidade-lightgray mb-8">
-            Os resultados serão revelados no jantar de Natal!
-          </p>
+          {canReveal ? (
+            <>
+              <p className="text-4xl font-bold text-white mb-2">
+                {correctCount}/{gameData.totalCards}
+              </p>
+              <p className="text-fidelidade-lightgray mb-6">
+                respostas corretas
+              </p>
+              <button
+                onClick={() => setShowCompletion(false)}
+                className="px-6 py-3 bg-fidelidade-red text-white rounded-full hover:bg-fidelidade-darkred transition-colors mb-4"
+              >
+                Ver Respostas
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-fidelidade-lightgray mb-2">
+                As tuas respostas foram guardadas.
+              </p>
+              <p className="text-fidelidade-lightgray mb-8">
+                Os resultados serão revelados em breve!
+              </p>
+            </>
+          )}
           <button
             onClick={handleLogout}
             className="px-6 py-3 bg-fidelidade-gray text-white rounded-full hover:bg-gray-700 transition-colors"
@@ -392,6 +423,14 @@ export default function GamePage() {
   const completedCount = Object.keys(guesses).length;
   const allComplete = completedCount === gameData.cards.length;
 
+  // Reveal mode
+  const isReviewMode = gameData.isCompleted && gameData.revealEnabled && gameData.correctAnswers;
+  const currentAnswer = isReviewMode ? gameData.correctAnswers?.[currentCard.id] : null;
+  const isCurrentCorrect = currentAnswer?.isCorrect;
+  const correctPerson = isReviewMode && currentAnswer && !isCurrentCorrect
+    ? gameData.participants.find((p) => p.id === currentAnswer.correctParticipantId)
+    : null;
+
   return (
     <main className="min-h-screen p-4 pb-24">
       <div className="max-w-lg mx-auto">
@@ -425,6 +464,50 @@ export default function GamePage() {
           />
         </AnimatePresence>
 
+        {/* Review Mode Feedback */}
+        {isReviewMode && currentAnswer && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`mt-4 p-4 rounded-xl ${
+              isCurrentCorrect
+                ? "bg-green-500/20 border border-green-500/50"
+                : "bg-red-500/20 border border-red-500/50"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <span className={`text-2xl ${isCurrentCorrect ? "text-green-400" : "text-red-400"}`}>
+                  {isCurrentCorrect ? "✓" : "✗"}
+                </span>
+                <div>
+                  <p className={`font-semibold ${isCurrentCorrect ? "text-green-400" : "text-red-400"}`}>
+                    {isCurrentCorrect ? "Correto!" : "Errado"}
+                  </p>
+                  {!isCurrentCorrect && correctPerson && (
+                    <p className="text-sm text-fidelidade-lightgray">
+                      A resposta correta era:
+                    </p>
+                  )}
+                </div>
+              </div>
+              {!isCurrentCorrect && correctPerson && (
+                <div className="flex items-center space-x-2">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                    <Image
+                      src={correctPerson.photoUrl}
+                      alt={correctPerson.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <span className="font-medium text-white">{correctPerson.name}</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
         {/* Grid */}
         <div className="mt-4">
           <ParticipantGrid
@@ -432,7 +515,7 @@ export default function GamePage() {
             assignedIds={assignedIds}
             selectedId={selectedId}
             currentCardId={currentCard.id}
-            onSelect={handleSelect}
+            onSelect={isReviewMode ? () => {} : handleSelect}
           />
         </div>
 
@@ -447,48 +530,57 @@ export default function GamePage() {
           </motion.p>
         )}
 
-        {/* Submit Button */}
+        {/* Bottom Button */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-fidelidade-dark to-transparent">
           <div className="max-w-lg mx-auto">
-            <button
-              onClick={handleSubmit}
-              disabled={!allComplete || submitting}
-              className={`w-full py-4 px-6 rounded-full font-semibold transition-all ${
-                allComplete
-                  ? "bg-fidelidade-red text-white hover:bg-fidelidade-darkred"
-                  : "bg-gray-700 text-gray-400 cursor-not-allowed"
-              }`}
-            >
-              {submitting ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  A submeter...
-                </span>
-              ) : allComplete ? (
-                "Submeter Respostas"
-              ) : (
-                `Faltam ${gameData.totalCards - completedCount} cards`
-              )}
-            </button>
+            {isReviewMode ? (
+              <button
+                onClick={() => setShowCompletion(true)}
+                className="w-full py-4 px-6 rounded-full font-semibold bg-fidelidade-gray text-white hover:bg-gray-600 transition-all"
+              >
+                Ver Resumo
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={!allComplete || submitting}
+                className={`w-full py-4 px-6 rounded-full font-semibold transition-all ${
+                  allComplete
+                    ? "bg-fidelidade-red text-white hover:bg-fidelidade-darkred"
+                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+              >
+                {submitting ? (
+                  <span className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    A submeter...
+                  </span>
+                ) : allComplete ? (
+                  "Submeter Respostas"
+                ) : (
+                  `Faltam ${gameData.totalCards - completedCount} cards`
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

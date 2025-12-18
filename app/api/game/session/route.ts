@@ -6,6 +6,8 @@ import {
   getParticipantsWithPhotos,
   getParticipantById,
   getRegistrationStatus,
+  isRevealEnabled,
+  getCorrectAnswersForSession,
 } from "@/lib/db";
 
 export async function GET() {
@@ -82,6 +84,15 @@ export async function GET() {
         photoUrl: p.photo_url,
       }));
 
+    // Check if reveal is enabled
+    const revealEnabled = await isRevealEnabled();
+
+    // Get correct answers only if reveal is enabled and game is completed
+    let correctAnswers: Record<string, { isCorrect: boolean; correctParticipantId: string }> = {};
+    if (revealEnabled && gameSession.is_completed) {
+      correctAnswers = await getCorrectAnswersForSession(gameSession.id);
+    }
+
     return NextResponse.json({
       sessionId: gameSession.id,
       isCompleted: gameSession.is_completed,
@@ -89,6 +100,8 @@ export async function GET() {
       guesses: guessesMap,
       participants: gridParticipants,
       totalCards: cardOrder.length,
+      revealEnabled,
+      correctAnswers,
     });
   } catch (error) {
     console.error("Get game session error:", error);

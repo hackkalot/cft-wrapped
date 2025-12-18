@@ -74,6 +74,9 @@ export default function AdminPage() {
     Array<{ name: string; email: string; artist_1: string; artist_2: string; artist_3: string }>
   >([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [revealDate, setRevealDate] = useState<string | null>(null);
+  const [revealEnabled, setRevealEnabled] = useState(false);
+  const [revealLoading, setRevealLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -97,18 +100,22 @@ export default function AdminPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [scoresRes, participantsRes, statsRes] = await Promise.all([
+      const [scoresRes, participantsRes, statsRes, revealRes] = await Promise.all([
         fetch("/api/admin/scores"),
         fetch("/api/admin/participants"),
         fetch("/api/admin/stats"),
+        fetch("/api/admin/reveal"),
       ]);
       const scoresData = await scoresRes.json();
       const participantsData = await participantsRes.json();
       const statsData = await statsRes.json();
+      const revealData = await revealRes.json();
       setScores(scoresData.scores || []);
       setStats(scoresData.stats || null);
       setParticipants(participantsData.participants || []);
       setChartStats(statsData);
+      setRevealDate(revealData.revealDate || null);
+      setRevealEnabled(revealData.isEnabled || false);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -194,6 +201,67 @@ export default function AdminPage() {
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
+  };
+
+  const handleRevealNow = async () => {
+    setRevealLoading(true);
+    try {
+      const res = await fetch("/api/admin/reveal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revealAt: new Date().toISOString() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRevealDate(data.revealDate);
+        setRevealEnabled(data.isEnabled);
+      }
+    } catch {
+      alert("Erro ao revelar respostas");
+    } finally {
+      setRevealLoading(false);
+    }
+  };
+
+  const handleScheduleReveal = async (date: string) => {
+    setRevealLoading(true);
+    try {
+      const res = await fetch("/api/admin/reveal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revealAt: date }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRevealDate(data.revealDate);
+        setRevealEnabled(data.isEnabled);
+      }
+    } catch {
+      alert("Erro ao agendar revelação");
+    } finally {
+      setRevealLoading(false);
+    }
+  };
+
+  const handleCancelReveal = async () => {
+    if (!confirm("Tens a certeza que queres cancelar a revelação?")) return;
+    setRevealLoading(true);
+    try {
+      const res = await fetch("/api/admin/reveal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revealAt: null }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRevealDate(null);
+        setRevealEnabled(false);
+      }
+    } catch {
+      alert("Erro ao cancelar revelação");
+    } finally {
+      setRevealLoading(false);
+    }
   };
 
   if (!isAdmin) {
@@ -659,6 +727,70 @@ export default function AdminPage() {
                   )}
                 </div>
               )}
+
+              {/* Reveal Answers Section */}
+              <div className="mt-8 pt-8 border-t border-gray-700">
+                <h3 className="text-lg font-semibold mb-2 text-green-400">Revelar Respostas</h3>
+                <p className="text-sm text-fidelidade-lightgray mb-4">
+                  Define quando os jogadores podem ver as respostas corretas do jogo.
+                </p>
+
+                {revealEnabled ? (
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mb-4">
+                    <p className="text-green-400 font-medium">
+                      ✓ Respostas reveladas
+                    </p>
+                    <p className="text-sm text-fidelidade-lightgray mt-1">
+                      Desde {revealDate ? new Date(revealDate).toLocaleString("pt-PT") : "-"}
+                    </p>
+                    <button
+                      onClick={handleCancelReveal}
+                      disabled={revealLoading}
+                      className="mt-3 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors text-sm disabled:opacity-50"
+                    >
+                      {revealLoading ? "A processar..." : "Cancelar Revelação"}
+                    </button>
+                  </div>
+                ) : revealDate && new Date(revealDate) > new Date() ? (
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
+                    <p className="text-yellow-400 font-medium">
+                      ⏳ Revelação agendada
+                    </p>
+                    <p className="text-sm text-fidelidade-lightgray mt-1">
+                      Para {new Date(revealDate).toLocaleString("pt-PT")}
+                    </p>
+                    <button
+                      onClick={handleCancelReveal}
+                      disabled={revealLoading}
+                      className="mt-3 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors text-sm disabled:opacity-50"
+                    >
+                      {revealLoading ? "A processar..." : "Cancelar Agendamento"}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button
+                      onClick={handleRevealNow}
+                      disabled={revealLoading}
+                      className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-500 transition-colors disabled:opacity-50"
+                    >
+                      {revealLoading ? "A processar..." : "Revelar Agora"}
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-fidelidade-lightgray">ou agendar para:</span>
+                      <input
+                        type="datetime-local"
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            handleScheduleReveal(new Date(e.target.value).toISOString());
+                          }
+                        }}
+                        className="px-3 py-2 bg-fidelidade-dark border border-gray-600 rounded-lg text-white text-sm focus:border-fidelidade-red outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Reset Database Section */}
               <div className="mt-8 pt-8 border-t border-gray-700">

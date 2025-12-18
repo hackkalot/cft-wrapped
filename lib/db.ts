@@ -69,6 +69,14 @@ export async function initDatabase() {
       UNIQUE(session_id, card_participant_id)
     )
   `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS game_settings (
+      key VARCHAR(255) PRIMARY KEY,
+      value TEXT,
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
 }
 
 // Participant functions
@@ -368,4 +376,60 @@ export async function getGameStats(): Promise<{
     completedGames: parseInt(completed.rows[0]?.count || "0"),
     inProgress: parseInt(inProgress.rows[0]?.count || "0"),
   };
+}
+
+// Game settings functions
+export async function getRevealDate(): Promise<string | null> {
+  const result = await sql<{ value: string }>`
+    SELECT value FROM game_settings WHERE key = 'reveal_answers_at'
+  `;
+  return result.rows[0]?.value || null;
+}
+
+export async function setRevealDate(date: string | null): Promise<void> {
+  if (date === null) {
+    await sql`
+      DELETE FROM game_settings WHERE key = 'reveal_answers_at'
+    `;
+  } else {
+    await sql`
+      INSERT INTO game_settings (key, value, updated_at)
+      VALUES ('reveal_answers_at', ${date}, NOW())
+      ON CONFLICT (key) DO UPDATE SET value = ${date}, updated_at = NOW()
+    `;
+  }
+}
+
+export async function isRevealEnabled(): Promise<boolean> {
+  const revealDate = await getRevealDate();
+  if (!revealDate) return false;
+
+  const now = new Date();
+  const reveal = new Date(revealDate);
+  return now >= reveal;
+}
+
+// Get correct answers for a session (only when reveal is enabled)
+export async function getCorrectAnswersForSession(
+  sessionId: string
+): Promise<Record<string, { isCorrect: boolean; correctParticipantId: string }>> {
+  const guesses = await sql<{
+    card_participant_id: string;
+    guessed_participant_id: string;
+  }>`
+    SELECT card_participant_id, guessed_participant_id
+    FROM guesses
+    WHERE session_id = ${sessionId}
+  `;
+
+  const result: Record<string, { isCorrect: boolean; correctParticipantId: string }> = {};
+
+  for (const guess of guesses.rows) {
+    result[guess.card_participant_id] = {
+      isCorrect: guess.card_participant_id === guess.guessed_participant_id,
+      correctParticipantId: guess.card_participant_id,
+    };
+  }
+
+  return result;
 }
