@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { getSession, isGameOpen } from "@/lib/auth";
 import { sql } from "@vercel/postgres";
-import { getRegistrationStatus } from "@/lib/db";
+import {
+  getRegistrationStatus,
+  getParticipantsWithPhotos,
+  getParticipantById,
+  getGuessesForSession,
+  isRevealEnabled,
+  getCorrectAnswersForSession,
+} from "@/lib/db";
 
 export async function GET() {
   try {
@@ -43,6 +50,60 @@ export async function GET() {
     // Check registration status
     const registrationStatus = await getRegistrationStatus();
 
+    // Test the actual game session flow to find the error
+    let gameSessionTest: { step: string; error?: string; data?: unknown } = { step: "not started" };
+    try {
+      gameSessionTest.step = "getParticipantsWithPhotos";
+      const allParticipants = await getParticipantsWithPhotos();
+      gameSessionTest.data = { participantsCount: allParticipants.length };
+
+      gameSessionTest.step = "getCardOrder";
+      const cardOrder = gameSession.rows[0]?.card_order as string[] | undefined;
+      if (!cardOrder) {
+        gameSessionTest.error = "No card_order found";
+      } else {
+        gameSessionTest.step = "buildCards";
+        // Test building cards - this might be failing
+        const testCard = cardOrder[0];
+        if (testCard) {
+          const testParticipant = await getParticipantById(testCard);
+          gameSessionTest.data = {
+            ...gameSessionTest.data as object,
+            firstCardId: testCard,
+            firstCardParticipant: testParticipant ? { id: testParticipant.id, name: testParticipant.name } : null,
+          };
+        }
+
+        gameSessionTest.step = "getGuesses";
+        const guesses = await getGuessesForSession(gameSession.rows[0].id);
+        gameSessionTest.data = {
+          ...gameSessionTest.data as object,
+          guessesCount: guesses.length,
+        };
+
+        gameSessionTest.step = "isRevealEnabled";
+        const revealEnabled = await isRevealEnabled();
+        gameSessionTest.data = {
+          ...gameSessionTest.data as object,
+          revealEnabled,
+          isAdmin: session.isAdmin,
+        };
+
+        if ((revealEnabled || session.isAdmin) && gameSession.rows[0].is_completed) {
+          gameSessionTest.step = "getCorrectAnswers";
+          const correctAnswers = await getCorrectAnswersForSession(gameSession.rows[0].id);
+          gameSessionTest.data = {
+            ...gameSessionTest.data as object,
+            correctAnswersCount: Object.keys(correctAnswers).length,
+          };
+        }
+
+        gameSessionTest.step = "completed";
+      }
+    } catch (e) {
+      gameSessionTest.error = String(e);
+    }
+
     return NextResponse.json({
       sessionPayload: {
         participantId: session.participantId,
@@ -64,6 +125,7 @@ export async function GET() {
       totalParticipantsWithPhoto: totalParticipants.rows[0]?.count || 0,
       gameOpenStatus,
       registrationStatus,
+      gameSessionTest,
     });
   } catch (error) {
     console.error("Debug session error:", error);
